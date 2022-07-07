@@ -3,7 +3,7 @@ from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from chekword import checkWord
 from transliterate import to_cyrillic,to_latin
-
+from uzwords import words
 
 
 logging.basicConfig(
@@ -34,19 +34,29 @@ def echo(update: Update, context: CallbackContext) -> None:
     word = update.message.text
     message_splited = word.split()
     for i in message_splited:
-        result = checkWord(to_cyrillic(i))
-        if result['available']:
-            response = f'✅{to_latin(i.capitalize())}'
+        if i in words:
+            result = checkWord(i)
+            if result['available']:
+                response = f'✅{i.capitalize()}'
+            else:
+                response = f'❌{i.capitalize()}\n'
+                for text in result['matches']:
+                    response += f'✅{text.capitalize()}\n'
+            update.message.reply_text(response)
         else:
-            response = f'❌{to_latin(i.capitalize())}\n'
-            for text in result['matches']:
-                response += f'✅{to_latin(text.capitalize())}\n'
-        update.message.reply_text(response)
+            result = checkWord(to_cyrillic(i))
+            if result['available']:
+                response = f'✅{to_latin(i.capitalize())}'
+            else:
+                response = f'❌{to_latin(i.capitalize())}\n'
+                for text in result['matches']:
+                    response += f'✅{to_latin(text.capitalize())}\n'
+            update.message.reply_text(response)
 
 
 
 def main() -> None:
-    updater = Updater("BOT_TOKEN")
+    updater = Updater("5470778624:AAHzp7Vp9Kod3wgFkvreaGDx7PqWnogM1ko")
 
     dispatcher = updater.dispatcher
 
